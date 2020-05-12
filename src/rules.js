@@ -204,7 +204,7 @@ export default styles => ({
   paragraph: {
     react: (node, output, state) =>
       createElement(
-        View,
+        Text,
         {
           key: state.key,
           style: styles.paragraph,

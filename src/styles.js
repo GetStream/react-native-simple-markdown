@@ -1,6 +1,6 @@
 /* @flow */
 
-const styles: Object = {
+const styles: object = {
   blockQuoteSection: {
     flexDirection: 'row',
   },
@@ -117,6 +117,10 @@ const styles: Object = {
     color: '#222222',
   },
   u: {
+    textDecorationLine: 'underline',
+  },
+  url: {
+    color: 'blue',
     textDecorationLine: 'underline',
   },
   video: {

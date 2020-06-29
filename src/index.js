@@ -1,92 +1,67 @@
 /* @flow */
 
-import React, { Component } from 'react'
+import React from 'react'
 import { View } from 'react-native'
-import PropTypes from 'prop-types'
+import concat from 'lodash/concat'
+import merge from 'lodash/merge'
+import omit from 'lodash/omit'
+import pick from 'lodash/pick'
+import pullAll from 'lodash/pullAll'
 import SimpleMarkdown from 'simple-markdown'
-import _ from 'lodash'
 
-import type { DefaultProps, Props } from './types'
 import initialRules from './rules'
 import initialStyles from './styles'
+import type { DefaultProps, Props } from './types'
 
-class Markdown extends Component<Props> {
-  static defaultProps: DefaultProps = {
-    blacklist: [],
-    children: '',
-    errorHandler: () => null,
-    rules: {},
-    styles: initialStyles,
-    whitelist: [],
-  }
-
-  static propTypes = {
-    blacklist: PropTypes.arrayOf(PropTypes.string),
-    children: PropTypes.string,
-    errorHandler: PropTypes.func,
-    rules: PropTypes.object, // eslint-disable-line react/forbid-prop-types
-    styles: PropTypes.object, // eslint-disable-line react/forbid-prop-types
-    whitelist: PropTypes.arrayOf(PropTypes.string),
-  }
-
-  shouldComponentUpdate = (nextProps: Props): boolean => (
-    this.props.children !== nextProps.children ||
-    this.props.styles !== nextProps.styles
-  )
-
-  // @TODO: Rewrite this part to prevent text from overriding other rules
-  /** Post processes rules to strip out unwanted styling options
-   *  while keeping the default 'paragraph' and 'text' rules
-   */
-  _postProcessRules = (preRules: Object): Object => {
+const Markdown: React.FC<Props> = ({
+  blacklist = [],
+  children = '',
+  errorHandler = () => null,
+  rules = {},
+  styles = initialStyles,
+  whitelist = [],
+}: DefaultProps) => {
+  const postProcessRules = (preRules) => {
     const defaultRules = ['paragraph', 'text']
-    if (this.props.whitelist && this.props.whitelist.length) {
-      return _.pick(preRules, _.concat(this.props.whitelist, defaultRules))
-    }
-    else if (this.props.blacklist && this.props.blacklist.length) {
-      return _.omit(preRules, _.pullAll(this.props.blacklist, defaultRules))
+    if (whitelist.length) {
+      return pick(preRules, concat(whitelist, defaultRules))
+    } if (blacklist.length) {
+      return omit(preRules, pullAll(blacklist, defaultRules))
     }
     return preRules
   }
 
-  _renderContent = (children: string): ?React$Element<any> => {
+  const renderContent = (child) => {
     try {
-      const mergedStyles = Object.assign({}, initialStyles, this.props.styles)
-      const rules = this._postProcessRules(
-        _.merge(
+      const mergedStyles = { ...initialStyles, ...styles }
+      const processedRules = postProcessRules(
+        merge(
           {},
           SimpleMarkdown.defaultRules,
           initialRules(mergedStyles),
-          this.props.rules,
+          rules,
         ),
       )
-      const child = Array.isArray(this.props.children)
-        ? this.props.children.join('')
-        : this.props.children
-      // @TODO: Add another \n?
-      const blockSource = `${child}\n`
-      const tree = SimpleMarkdown.parserFor(rules)(blockSource, {
-        inline: false,
-      })
-      return SimpleMarkdown.reactFor(SimpleMarkdown.ruleOutput(rules, 'react'))(
-        tree,
+      const childrenByLine = child.split('\n')
+      const tree = childrenByLine.map(
+        str => SimpleMarkdown.parserFor(processedRules)(str, {
+          inline: false,
+        })[0],
       )
+      console.log({ tree })
+      return SimpleMarkdown.outputFor(processedRules, 'react')(tree)
     }
     catch (errors) {
-      this.props.errorHandler
-        ? this.props.errorHandler(errors, children)
-        : console.error(errors)
+      errorHandler ? errorHandler(errors, child) : console.error(errors)
     }
     return null
   }
 
-  render() {
-    return (
-      <View style={[initialStyles.view, this.props.styles.view]}>
-        {this._renderContent(this.props.children)}
-      </View>
-    )
-  }
+  return (
+    <View style={[initialStyles.view, styles.view]}>
+      {renderContent(children)}
+    </View>
+  )
 }
 
-export default Markdown
+export default React.memo(Markdown)

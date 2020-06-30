@@ -33,7 +33,7 @@ const Markdown: React.FC<Props> = ({
 
   const renderContent = (child) => {
     try {
-      const mergedStyles = { ...initialStyles, ...styles }
+      const mergedStyles = merge({}, initialStyles, styles)
       const processedRules = postProcessRules(
         merge(
           {},
@@ -48,7 +48,6 @@ const Markdown: React.FC<Props> = ({
           inline: false,
         })[0],
       )
-      console.log({ tree })
       return SimpleMarkdown.outputFor(processedRules, 'react')(tree)
     }
     catch (errors) {

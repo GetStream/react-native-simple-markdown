@@ -17,9 +17,8 @@
     "prepack:flow": "flow-copy-source -v src lib"
   },
   "dependencies": {
-    "lodash": "^4.15.0",
-    "prop-types": "^15.6.0",
-    "simple-markdown": "^0.4.4"
+    "lodash": "^4.17.15",
+    "simple-markdown": "^0.7.2"
   },
   "peerDependencies": {
     "react": "*",

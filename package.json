@@ -1,7 +1,7 @@
 {
   "name": "@stream-io/react-native-simple-markdown",
   "repository": "https://github.com/CharlesMangwa/react-native-simple-markdown",
-  "version": "1.1.3",
+  "version": "1.2.0",
   "description": "Render Markdown in React Native with native components (iOS & Android)",
   "main": "lib/index.js",
   "files": [

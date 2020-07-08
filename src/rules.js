@@ -2,6 +2,7 @@
 /* eslint-disable react/no-array-index-key */
 import React from 'react'
 import { Image, Linking, Text, View } from 'react-native'
+import { blockRegex } from 'simple-markdown'
 
 export default styles => ({
   autolink: {
@@ -71,6 +72,7 @@ export default styles => ({
     },
   },
   heading: {
+    match: blockRegex(/^ *(#{1,6}) ([^\n]+?)#* *(?:\n *)+\n/),
     react: (node, output, parentState) => {
       const state = { ...parentState }
       state.withinText = true
